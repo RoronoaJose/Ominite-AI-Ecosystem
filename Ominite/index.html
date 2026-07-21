@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ominite AI Ecosystem — Centralized AI Productivity Workspace</title>
+  <meta name="description" content="Ominite AI Ecosystem brings together Chat, Notes, Summarizer, and Task boards into a premium single account workspace.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Canvas Background for Cursor-tracking Particle Effect -->
+  <canvas id="particle-canvas"></canvas>
+
+  <div class="app-wrapper">
+    <!-- Header -->
+    <header>
+      <div class="nav-container">
+        <a href="#" class="logo" id="nav-logo">
+          <div class="logo-icon">O</div>
+          <span class="logo-text">Ominite</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="#features">Ecosystem Map</a></li>
+          <li><a href="#roadmap">Roadmap</a></li>
+          <li><a href="#about">Features</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="btn-secondary" id="btn-open-login">Sign In</button>
+          <button class="btn-primary" id="btn-launch-dashboard">Launch App</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- LANDING VIEW PANEL -->
+    <div id="landing-view" class="view-panel active">
+      <!-- Hero Section -->
+      <section class="section-container hero-section">
+        <div class="badge-tag">
+          <div class="badge-pulse"></div>
+          Semester 1 Core Live
+        </div>
+        <h1 class="hero-title">
+          One Account.<br>
+          <span class="gradient-text">Unified AI Intelligence.</span>
+        </h1>
+        <p class="hero-description">
+          Stop context switching between fragmented productivity tools. Ominite integrates AI Chat, Notes, Summarizers, and Task trackers into a single premium ecosystem.
+        </p>
+        <div class="hero-buttons">
+          <button class="btn-primary" id="hero-btn-launch">Explore Workspace</button>
+          <a href="#features" class="btn-secondary">View Ecosystem Map</a>
+        </div>
+      </section>
+
+      <!-- Ecosystem Map Section -->
+      <section id="features" class="section-container map-section">
+        <div class="section-header">
+          <h2>Interactive Ecosystem Map</h2>
+          <p>Hover over or click nodes in the orbital map to discover our modular AI layout across development semesters.</p>
+        </div>
+
+        <div class="ecosystem-container">
+          <!-- Left: Orbital Node Map -->
+          <div class="orbit-map-wrapper">
+            <div class="orbit-circle orbit-circle-1"></div>
+            <div class="orbit-circle orbit-circle-2"></div>
+            
+            <!-- Central Node -->
+            <div class="core-node" id="core-trigger">
+              <div class="core-inner">OMINITE<br>CORE</div>
+            </div>
+
+            <!-- Orbit Nodes (Semester 1) -->
+            <div class="module-node active" style="top: 15%; left: 30%;" data-module="chat" data-sem="1">
+              <!-- Chat Icon SVG -->
+              <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
+            </div>
+            <div class="module-node" style="top: 45%; left: 10%;" data-module="notes" data-sem="1">
+              <!-- Notes Icon SVG -->
+              <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+            </div>
+            <div class="module-node" style="top: 75%; left: 35%;" data-module="summarizer" data-sem="1">
+              <!-- Summarizer Icon SVG -->
+              <svg viewBox="0 0 24 24"><path d="M14 17H4v2h10v-2zm6-8H4v2h16V9zM4 15h16v-2H4v2zM4 5v2h16V5H4z"/></svg>
+            </div>
+            <div class="module-node" style="top: 60%; left: 70%;" data-module="todo" data-sem="1">
+              <!-- To-Do Icon SVG -->
+              <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            </div>
+
+            <!-- Orbit Nodes (Semester 2) -->
+            <div class="module-node" style="top: 20%; left: 75%;" data-module="study" data-sem="2">
+              <!-- Study Icon SVG -->
+              <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5.49 12c.66.36 1.41.59 2.21.69.8.1 1.63.13 2.45.09.82-.04 1.62-.15 2.37-.34.75-.19 1.44-.48 2.04-.84L12 14.91 5.49 12z"/></svg>
+            </div>
+            <div class="module-node" style="top: 85%; left: 65%;" data-module="resume" data-sem="2">
+              <!-- Resume Icon SVG -->
+              <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 4h2v2h-2V7zm-4 0h2v2h-2V7zm-4 0h2v2H6V7zm0 4h2v2H6v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2zm-8 4h10v2H6v-2z"/></svg>
+            </div>
+            <div class="module-node" style="top: 5%; left: 55%;" data-module="translator" data-sem="2">
+              <!-- Translator Icon SVG -->
+              <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
+            </div>
+            <div class="module-node" style="top: 30%; left: 90%;" data-module="planner" data-sem="2">
+              <!-- Planner Icon SVG -->
+              <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5z"/></svg>
+            </div>
+          </div>
+
+          <!-- Right: Interactive Details -->
+          <div class="module-detail-panel">
+            <div class="glass-card module-detail-card" id="detail-card">
+              <span class="detail-tag" id="detail-tag">Semester 1</span>
+              <h3 class="detail-title" id="detail-title">AI Chat</h3>
+              <p class="detail-desc" id="detail-desc">
+                An intelligent conversation partner powered by advanced language processing, capable of adjusting personalities to solve technical, creative, and customer support problems instantly.
+              </p>
+              <ul class="detail-features" id="detail-features">
+                <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Contextual Memory</li>
+                <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Multiple Personas</li>
+                <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Realtime Streaming</li>
+                <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Markdown Rendering</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Roadmap Timeline Section -->
+      <section id="roadmap" class="section-container roadmap-section">
+        <div class="section-header">
+          <h2>Release Roadmap</h2>
+          <p>Explore Ominite's evolution from Semester 1 foundations to Semesters 3 & 4 scalable ecosystem intelligence.</p>
+        </div>
+
+        <div class="roadmap-timeline">
+          <!-- Sem 1 -->
+          <div class="roadmap-item" data-sem="1">
+            <div class="roadmap-dot"></div>
+            <div class="glass-card">
+              <div class="roadmap-sem">Semester 1</div>
+              <h3 class="roadmap-card-title">Foundational MVP</h3>
+              <p class="roadmap-card-desc">
+                Establishing the core application layer with User Authentication, responsive Dashboard, AI Chatbot, persistent AI Notes workspace, document Summarizer, and a priority-tagged To-Do module.
+              </p>
+            </div>
+          </div>
+
+          <!-- Sem 2 -->
+          <div class="roadmap-item" data-sem="2">
+            <div class="roadmap-dot"></div>
+            <div class="glass-card">
+              <div class="roadmap-sem">Semester 2</div>
+              <h3 class="roadmap-card-title">Utility Expansion</h3>
+              <p class="roadmap-card-desc">
+                Introducing advanced study guides, a template-driven AI Resume builder, cross-language machine translation services, and smart project calendars for long-term task planning.
+              </p>
+            </div>
+          </div>
+
+          <!-- Sem 3 -->
+          <div class="roadmap-item" data-sem="3">
+            <div class="roadmap-dot"></div>
+            <div class="glass-card">
+              <div class="roadmap-sem">Semester 3</div>
+              <h3 class="roadmap-card-title">Ecosystem Intelligence</h3>
+              <p class="roadmap-card-desc">
+                Unifying separate database schemas into a shared user context graph. Providing cross-module search, personalized dashboard tips, progress analytics, and smart recommendations.
+              </p>
+            </div>
+          </div>
+
+          <!-- Sem 4 -->
+          <div class="roadmap-item" data-sem="4">
+            <div class="roadmap-dot"></div>
+            <div class="glass-card">
+              <div class="roadmap-sem">Semester 4</div>
+              <h3 class="roadmap-card-title">Scalable Platforms</h3>
+              <p class="roadmap-card-desc">
+                Publishing open APIs and a developers plugin architecture. Enabling real-time workspace collaboration, 3rd party integrations (Google Drive, Slack), and advanced autonomous workflow automation.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Key Features Grid -->
+      <section id="about" class="section-container">
+        <div class="section-header">
+          <h2>Core Features</h2>
+          <p>Ominite is designed from the ground up to solve daily friction and boost performance.</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="glass-card feature-card">
+            <div class="feature-icon-wrapper">
+              <!-- Key Icon -->
+              <svg viewBox="0 0 24 24"><path d="M12.65 11.65L16 15v3h3v-3h-3v-3.35l-1.35-1.35c.78-.96 1.25-2.18 1.25-3.5 0-3.04-2.46-5.5-5.5-5.5S5 6.96 5 10c0 1.32.47 2.54 1.25 3.5l6.4 6.4 1.41-1.41-1.41-1.84zm-3.15-4.15c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5z"/></svg>
+            </div>
+            <h3 class="feature-title">Single Sign-On (SSO)</h3>
+            <p class="feature-desc">Access all AI modules instantly using a single profile credential without logging in to separate services.</p>
+          </div>
+
+          <div class="glass-card feature-card">
+            <div class="feature-icon-wrapper">
+              <!-- Stack Icon -->
+              <svg viewBox="0 0 24 24"><path d="M12 2L1 7l11 5 9-4.09V17h2V7L12 2zm0 18.54L4.41 17l7.59-3.41L19.59 17 12 20.54zM12 11.9L4 8.3v4.2l8 3.6 8-3.6V8.3l-8 3.6z"/></svg>
+            </div>
+            <h3 class="feature-title">Modular Architecture</h3>
+            <p class="feature-desc">Our codebase supports seamless additions of modular widgets as independent nodes connected to core states.</p>
+          </div>
+
+          <div class="glass-card feature-card">
+            <div class="feature-icon-wrapper">
+              <!-- Sync Icon -->
+              <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm-6 8c0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3c-3.31 0-6-2.69-6-6z"/></svg>
+            </div>
+            <h3 class="feature-title">Shared User Context</h3>
+            <p class="feature-desc">AI modules learn from note styles, dashboard stats, and chat history to provide highly personalized workflows.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- DASHBOARD VIEW PANEL (LIVELY APP DEMO) -->
+    <div id="dashboard-view" class="view-panel">
+      <div class="dashboard-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="dash-sidebar">
+          <ul class="sidebar-nav">
+            <li class="sidebar-item">
+              <button class="sidebar-btn active" data-target="overview">
+                <!-- Overview Icon -->
+                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H5v-2h7v2zm4-4H5v-2h11v2zm0-4H5V7h11v2z"/></svg>
+                Overview
+              </button>
+            </li>
+            <li class="sidebar-item">
+              <button class="sidebar-btn" data-target="chat">
+                <!-- Chat Icon -->
+                <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
+                AI Chat
+              </button>
+            </li>
+            <li class="sidebar-item">
+              <button class="sidebar-btn" data-target="notes">
+                <!-- Notes Icon -->
+                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                AI Notes
+              </button>
+            </li>
+            <li class="sidebar-item">
+              <button class="sidebar-btn" data-target="summary">
+                <!-- Summary Icon -->
+                <svg viewBox="0 0 24 24"><path d="M14 17H4v2h10v-2zm6-8H4v2h16V9zM4 15h16v-2H4v2zM4 5v2h16V5H4z"/></svg>
+                AI Summarizer
+              </button>
+            </li>
+            <li class="sidebar-item">
+              <button class="sidebar-btn" data-target="todo">
+                <!-- To-Do Icon -->
+                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                AI To-Do List
+              </button>
+            </li>
+          </ul>
+
+          <div class="sidebar-footer">
+            <div class="user-profile-preview" id="sidebar-profile">
+              <div class="avatar guest" id="sidebar-avatar">G</div>
+              <div class="user-info">
+                <span class="user-name" id="sidebar-username">Guest User</span>
+                <span class="user-status" id="sidebar-userstatus">Limited Sandbox</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main Workspace View Container -->
+        <main class="dash-content">
+          <!-- Overview Panel -->
+          <div class="dash-panel active" id="panel-overview">
+            <h2 class="dash-header-title">Welcome back, <span class="gradient-text" id="overview-greeting">Guest</span>!</h2>
+            <p class="dash-header-subtitle">Here is a quick snapshot of your active Ominite sandbox workspace.</p>
+
+            <div class="stats-row">
+              <div class="glass-card stat-card" data-type="blue">
+                <div class="stat-label">AI Chat Sessions</div>
+                <div class="stat-value" id="stat-chat-count">1</div>
+              </div>
+              <div class="glass-card stat-card" data-type="pink">
+                <div class="stat-label">Stored AI Notes</div>
+                <div class="stat-value" id="stat-notes-count">0</div>
+              </div>
+              <div class="glass-card stat-card" data-type="teal">
+                <div class="stat-label">Documents Processed</div>
+                <div class="stat-value" id="stat-summary-count">0</div>
+              </div>
+              <div class="glass-card stat-card" data-type="orange">
+                <div class="stat-label">Tasks Pending</div>
+                <div class="stat-value" id="stat-todo-count">0</div>
+              </div>
+            </div>
+
+            <div class="quick-activities">
+              <div class="glass-card">
+                <h3 style="margin-bottom: 20px;">System Context Status</h3>
+                <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+                  All modules share a client-side session memory storage. Logging in unlocks synchronized database integrations. Currently running in <strong>Local Storage Sandboxing mode</strong>.
+                </p>
+                <div class="badge-tag" style="margin: 0; color: var(--accent-teal); border-color: rgba(16, 185, 129, 0.2);">
+                  <div class="badge-pulse" style="background-color: var(--accent-teal);"></div>
+                  Ready to compute
+                </div>
+              </div>
+              <div class="glass-card">
+                <h3 style="margin-bottom: 15px;">Active Sandbox Profile</h3>
+                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 20px;" id="profile-text-desc">
+                  You are exploring as a guest. Click Sign In in the navigation bar to personalize your sandbox name.
+                </p>
+                <button class="btn-secondary" id="dash-btn-auth" style="width: 100%; justify-content: center;">Configure Session Profile</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Chat Panel -->
+          <div class="dash-panel" id="panel-chat">
+            <h2 class="dash-header-title">Ominite AI Chat</h2>
+            <p class="dash-header-subtitle">Interact with our simulated contextual model. Toggle agent personas below.</p>
+
+            <div class="chat-container">
+              <aside class="chat-sidebar">
+                <h4>Agent Personas</h4>
+                <div class="chat-persona-list">
+                  <button class="persona-btn active" data-persona="helpful">
+                    <span class="persona-name">Helpful Assistant</span>
+                    <span class="persona-desc">Friendly general help</span>
+                  </button>
+                  <button class="persona-btn" data-persona="technical">
+                    <span class="persona-name">Tech Lead</span>
+                    <span class="persona-desc">Coding and architecture</span>
+                  </button>
+                  <button class="persona-btn" data-persona="creative">
+                    <span class="persona-name">Creative Copywriter</span>
+                    <span class="persona-desc">Writing and marketing</span>
+                  </button>
+                </div>
+              </aside>
+              <div class="chat-workspace">
+                <div class="chat-messages" id="chat-messages-container">
+                  <div class="chat-msg bot">
+                    Hello! I'm your Ominite AI companion. How can I help you today? You can ask me about our roadmap, or how Ominite resolves daily productivity challenges!
+                  </div>
+                </div>
+                <div class="chat-input-area">
+                  <input type="text" class="chat-input" id="chat-user-input" placeholder="Type an AI message here...">
+                  <button class="chat-send-btn" id="chat-send-btn">
+                    <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Notes Panel -->
+          <div class="dash-panel" id="panel-notes">
+            <h2 class="dash-header-title">AI Notes Manager</h2>
+            <p class="dash-header-subtitle">Create and update documents. Saved locally inside browser storage.</p>
+
+            <div class="notes-container">
+              <aside class="notes-sidebar">
+                <button class="btn-primary" id="notes-new-btn" style="padding: 10px; width: 100%; justify-content: center; font-size: 14px;">
+                  + Create New Note
+                </button>
+                <div class="notes-list" id="notes-list-container">
+                  <!-- Stored Notes -->
+                </div>
+              </aside>
+              <div class="notes-editor">
+                <input type="text" class="note-title-input" id="note-editor-title" placeholder="Note Title" value="Draft Note">
+                <textarea class="note-textarea" id="note-editor-body" placeholder="Start typing note content here..."></textarea>
+                <div class="note-actions">
+                  <button class="btn-secondary" id="notes-delete-btn" style="border-color: rgba(239, 68, 68, 0.4); color: #f87171;">Delete</button>
+                  <button class="btn-primary" id="notes-save-btn">Save Note</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Summarizer Panel -->
+          <div class="dash-panel" id="panel-summary">
+            <h2 class="dash-header-title">AI Summarizer</h2>
+            <p class="dash-header-subtitle">Extract bullet points and summaries from long documents using automated context models.</p>
+
+            <div class="summary-layout">
+              <div class="glass-card summary-input-card">
+                <h3 style="margin-bottom: 12px;">Input Document</h3>
+                <textarea class="summary-textarea" id="summary-input-text" placeholder="Paste your text or choose a preset below..."></textarea>
+                <div class="summary-controls">
+                  <div class="summary-presets">
+                    <button class="preset-btn" data-preset="roadmap">Ominite Roadmap</button>
+                    <button class="preset-btn" data-preset="problems">Problem Statement</button>
+                  </div>
+                  <button class="btn-primary" id="summary-btn" style="background: linear-gradient(135deg, var(--accent-teal) 0%, var(--accent-blue) 100%); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);">Summarize Document</button>
+                </div>
+              </div>
+
+              <div class="summary-output-workspace">
+                <div class="scan-animation" id="summary-scanner"></div>
+                <div class="summary-placeholder" id="summary-output-placeholder">
+                  <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                  <span>Ready to analyze. Paste text and click Summarize.</span>
+                </div>
+                <div class="summary-content" id="summary-output-content">
+                  <h4>AI Context Summary</h4>
+                  <p id="summary-text-p"></p>
+                  <h4>Key Takeaways</h4>
+                  <ul id="summary-bullets-ul"></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI To-Do List Panel -->
+          <div class="dash-panel" id="panel-todo">
+            <h2 class="dash-header-title">AI Priority Task List</h2>
+            <p class="dash-header-subtitle">Organize tasks. Set priorities and categories to manage daily goals.</p>
+
+            <div class="todo-workspace">
+              <div class="glass-card todo-input-row">
+                <input type="text" class="chat-input" id="todo-input-text" placeholder="What task needs to be completed?" style="flex: 1;">
+                <select class="todo-select" id="todo-input-priority">
+                  <option value="high">High</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="low">Low</option>
+                </select>
+                <select class="todo-select" id="todo-input-category">
+                  <option value="work">Work</option>
+                  <option value="study">Study</option>
+                  <option value="personal">Personal</option>
+                </select>
+                <button class="btn-primary" id="todo-add-btn" style="padding: 12px 20px; background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-pink) 100%); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);">Add</button>
+              </div>
+
+              <div class="glass-card todo-list-card">
+                <div class="todo-items-wrapper" id="todo-list-container">
+                  <!-- Dynamic Tasks -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer">
+      <div class="footer-content">
+        <a href="#" class="logo footer-logo">
+          <span class="logo-text">Ominite AI</span>
+        </a>
+        <span class="copyright">© 2026 Ominite Ecosystem. All rights reserved.</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- AUTHENTICATION DIALOG / PROFILE MODAL -->
+  <div class="modal-overlay" id="auth-modal-overlay">
+    <div class="glass-card auth-modal">
+      <div class="auth-modal-header">
+        <h3 id="auth-title">Sign In to Sandbox</h3>
+        <p id="auth-subtitle">Configure your mock profile name and parameters</p>
+      </div>
+      <form class="auth-form" id="auth-form" onsubmit="return false;">
+        <div class="form-group">
+          <label for="auth-input-username">Full Name</label>
+          <input type="text" class="form-input" id="auth-input-username" placeholder="Alex Johnson" required>
+        </div>
+        <div class="form-group" id="auth-group-email">
+          <label for="auth-input-email">Email Address</label>
+          <input type="email" class="form-input" id="auth-input-email" placeholder="alex@ominite.ai">
+        </div>
+        <button class="btn-primary" id="auth-submit-btn" style="margin-top: 10px; justify-content: center;">Save & Configure Profile</button>
+      </form>
+      <div class="auth-toggle-text">
+        <span id="auth-switch-prompt">Need to switch states?</span>
+        <span class="auth-toggle-link" id="auth-toggle-link">Reset Profile</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
