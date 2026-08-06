@@ -1,0 +1,14 @@
+# Virtual environment — each teammate creates their own from requirements.txt
+mem0-env/
+venv/
+.venv/
+
+# Local vector store — machine-specific test data, regenerated on each run
+chroma_db/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment secrets (if you add API keys later)
+.env
