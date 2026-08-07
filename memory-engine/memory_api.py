@@ -37,6 +37,9 @@ ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:5173",
+    "http://127.0.0.1:5500",   # VS Code Live Server default
+    "http://localhost:5500",
+    "null",                    # file:// origin (opening the HTML directly)
 ]
 
 app.add_middleware(

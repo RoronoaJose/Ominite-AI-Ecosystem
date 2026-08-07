@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ominite Memory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root{
+    --bg: #0c0c10;
+    --bg-dot: #17171d;
+    --panel: #131318;
+    --panel-border: #232330;
+    --violet: #a396ff;
+    --violet-dim: rgba(163,150,255,0.18);
+    --gold: #e8c07d;
+    --text: #e9e7f2;
+    --text-muted: #6f6e7d;
+    --danger: #e0768a;
+    --ok: #7fd9a8;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html, body{
+    margin:0; padding:0; height:100%;
+    background:
+      radial-gradient(var(--bg-dot) 1px, transparent 1px) 0 0/22px 22px,
+      var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    overflow: hidden;
+  }
+
+  #app{ height:100vh; display:flex; flex-direction:column; }
+
+  /* ---------- Topbar ---------- */
+  .topbar{
+    display:flex; align-items:center; gap:16px;
+    padding: 14px 20px;
+    background: rgba(12,12,16,0.85);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--panel-border);
+    z-index: 10;
+  }
+  .brand{
+    font-family: var(--font-display);
+    font-weight:600;
+    font-size: 17px;
+    letter-spacing: 0.2px;
+    display:flex; align-items:center; gap:8px;
+    white-space:nowrap;
+  }
+  .brand .dot{
+    width:7px; height:7px; border-radius:50%;
+    background: var(--text-muted);
+    box-shadow: 0 0 0 0 transparent;
+    transition: background .3s, box-shadow .3s;
+  }
+  .brand .dot.ok{ background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  .brand .dot.bad{ background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+
+  .userid-field{
+    display:flex; align-items:center; gap:6px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 6px 10px;
+  }
+  .userid-field label{ color:var(--text-muted); font-size:12px; }
+  .userid-field input{
+    background:transparent; border:none; color:var(--text);
+    font-family: var(--font-mono); font-size:13px; width:130px; outline:none;
+  }
+  .userid-quick{ display:flex; gap:4px; }
+  .userid-quick button{
+    font-family: var(--font-mono); font-size:11px;
+    background:none; border:1px solid var(--panel-border); color:var(--text-muted);
+    border-radius:4px; padding:3px 6px; cursor:pointer;
+  }
+  .userid-quick button:hover{ color:var(--violet); border-color:var(--violet); }
+
+  .search-field{
+    flex:1; display:flex; align-items:center; gap:8px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 7px 12px;
+    max-width: 420px;
+  }
+  .search-field svg{ flex-shrink:0; opacity:.5; }
+  .search-field input{
+    background:transparent; border:none; color:var(--text);
+    font-family: var(--font-mono); font-size:13px; width:100%; outline:none;
+  }
+  .search-field input::placeholder{ color: var(--text-muted); }
+
+  .actions{ display:flex; gap:8px; }
+  .btn{
+    font-family: var(--font-mono); font-size:12px;
+    background: var(--panel); color: var(--text);
+    border:1px solid var(--panel-border); border-radius:6px;
+    padding: 8px 12px; cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+    transition: border-color .15s, color .15s;
+  }
+  .btn:hover{ border-color: var(--violet); color: var(--violet); }
+  .btn.primary{ border-color: var(--violet); color: var(--violet); }
+  .btn:disabled{ opacity:.4; cursor:default; }
+  .btn:disabled:hover{ border-color: var(--panel-border); color: var(--text); }
+
+  /* ---------- Main ---------- */
+  main{ position:relative; flex:1; overflow:hidden; }
+  svg#graph{ width:100%; height:100%; display:block; cursor: grab; }
+  svg#graph:active{ cursor: grabbing; }
+
+  .link{ stroke: var(--violet-dim); stroke-width: 1; }
+  .node circle{ cursor:pointer; transition: opacity .2s; }
+  .node text{
+    fill: var(--text-muted); font-size: 10px; font-family: var(--font-mono);
+    pointer-events:none; transition: opacity .2s, fill .2s;
+  }
+  .node.dim circle, .node.dim text{ opacity: 0.12; }
+  .node.match text{ fill: var(--gold); }
+
+  .empty-state, .loading-state{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:10px;
+    color: var(--text-muted); text-align:center; pointer-events:none;
+  }
+  .empty-state .big{ font-family: var(--font-display); font-size:20px; color: var(--text); }
+  .empty-state .small{ font-size:12px; max-width:320px; line-height:1.5; }
+  .hidden{ display:none !important; }
+
+  /* ---------- Detail panel ---------- */
+  #panel{
+    position:absolute; top:0; right:0; height:100%; width:340px;
+    background: rgba(19,19,24,0.92);
+    backdrop-filter: blur(10px);
+    border-left: 1px solid var(--panel-border);
+    padding: 20px;
+    transform: translateX(100%);
+    transition: transform .25s ease;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  #panel.open{ transform: translateX(0); }
+  #panel .close{
+    align-self:flex-end; background:none; border:none; color:var(--text-muted);
+    cursor:pointer; font-size:16px; font-family: var(--font-mono);
+  }
+  #panel .close:hover{ color: var(--text); }
+  #panel .memory-text{
+    font-family: var(--font-display); font-size:15px; line-height:1.5;
+    color: var(--text);
+  }
+  #panel .meta{ font-size:11px; color: var(--text-muted); line-height:1.6; }
+  #panel .meta span{ color: var(--text); }
+  #panel .panel-actions{ display:flex; gap:8px; margin-top:auto; }
+
+  /* ---------- Add memory drawer ---------- */
+  #add-drawer{
+    position:absolute; bottom:0; left:0; right:0;
+    background: rgba(19,19,24,0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--panel-border);
+    padding: 14px 20px;
+    display:flex; gap:10px; align-items:flex-start;
+    transform: translateY(100%);
+    transition: transform .2s ease;
+  }
+  #add-drawer.open{ transform: translateY(0); }
+  #add-drawer textarea{
+    flex:1; background: var(--panel); border:1px solid var(--panel-border);
+    border-radius:6px; color:var(--text); font-family: var(--font-mono);
+    font-size:13px; padding:10px; resize:none; height:52px; outline:none;
+  }
+  #add-drawer textarea:focus{ border-color: var(--violet); }
+  .add-hint{ font-size:11px; color: var(--text-muted); margin-top:4px; }
+
+  /* ---------- Toast ---------- */
+  #toast{
+    position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+    background: var(--panel); border:1px solid var(--panel-border);
+    color: var(--text); font-family: var(--font-mono); font-size:12px;
+    padding:9px 16px; border-radius:6px; opacity:0; pointer-events:none;
+    transition: opacity .2s;
+  }
+  #toast.show{ opacity:1; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand"><span class="dot" id="health-dot"></span> Ominite Memory</div>
+
+    <div class="userid-field">
+      <label>user</label>
+      <input id="user-id-input" value="athrva_test" spellcheck="false">
+      <div class="userid-quick">
+        <button data-uid="test_user_a">A</button>
+        <button data-uid="test_user_b">B</button>
+      </div>
+    </div>
+
+    <div class="search-field">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search-input" placeholder="Filter memories...">
+    </div>
+
+    <div class="actions">
+      <button class="btn" id="refresh-btn">↻ Refresh</button>
+      <button class="btn" id="add-toggle-btn">+ Add</button>
+      <button class="btn primary" id="download-btn">⭳ Export .md</button>
+    </div>
+  </div>
+
+  <main>
+    <svg id="graph"></svg>
+
+    <div class="empty-state hidden" id="empty-state">
+      <div class="big">No memories yet</div>
+      <div class="small">Nothing stored for this user. Add one below, or point this at a user_id that already has conversation history.</div>
+    </div>
+
+    <div class="loading-state hidden" id="loading-state">
+      <div class="small">Loading memories...</div>
+    </div>
+
+    <div id="panel">
+      <button class="close" id="panel-close">✕ close</button>
+      <div class="memory-text" id="panel-text"></div>
+      <div class="meta">
+        id: <span id="panel-id"></span><br>
+        created: <span id="panel-created"></span>
+      </div>
+      <div class="panel-actions">
+        <button class="btn" id="panel-delete" style="border-color:var(--danger); color:var(--danger);">Delete memory</button>
+      </div>
+    </div>
+
+    <div id="add-drawer">
+      <div style="flex:1;">
+        <textarea id="add-textarea" placeholder="Paste conversation text to extract a memory from..."></textarea>
+        <div class="add-hint">Runs local extraction via Ollama — can take 20s to a couple minutes.</div>
+      </div>
+      <button class="btn primary" id="add-submit-btn">Add</button>
+    </div>
+
+    <div id="toast"></div>
+  </main>
+</div>
+
+<script>
+const API_BASE = "http://127.0.0.1:8001";
+
+let memories = [];
+let simulation, svg, g, linkSel, nodeSel;
+let currentUserId = "athrva_test";
+
+const els = {
+  userIdInput: document.getElementById('user-id-input'),
+  searchInput: document.getElementById('search-input'),
+  healthDot: document.getElementById('health-dot'),
+  emptyState: document.getElementById('empty-state'),
+  loadingState: document.getElementById('loading-state'),
+  panel: document.getElementById('panel'),
+  panelText: document.getElementById('panel-text'),
+  panelId: document.getElementById('panel-id'),
+  panelCreated: document.getElementById('panel-created'),
+  panelDelete: document.getElementById('panel-delete'),
+  addDrawer: document.getElementById('add-drawer'),
+  addTextarea: document.getElementById('add-textarea'),
+  toast: document.getElementById('toast'),
+};
+
+function showToast(msg, ms=3000){
+  els.toast.textContent = msg;
+  els.toast.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=> els.toast.classList.remove('show'), ms);
+}
+
+async function checkHealth(){
+  try{
+    const r = await fetch(`${API_BASE}/health`);
+    const data = await r.json();
+    els.healthDot.className = 'dot ' + (data.ollama_reachable ? 'ok' : 'bad');
+  }catch(e){
+    els.healthDot.className = 'dot bad';
+  }
+}
+
+async function fetchMemories(userId){
+  els.loadingState.classList.remove('hidden');
+  els.emptyState.classList.add('hidden');
+  try{
+    const r = await fetch(`${API_BASE}/memory/all`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({user_id: userId})
+    });
+    if(!r.ok){ const err = await r.json(); throw new Error(err.detail || 'request failed'); }
+    const data = await r.json();
+    const results = data.result?.results || data.result || [];
+    memories = results;
+    renderGraph();
+  }catch(e){
+    showToast('Could not load memories: ' + e.message);
+  }finally{
+    els.loadingState.classList.add('hidden');
+  }
+}
+
+function truncate(str, n){
+  return str.length > n ? str.slice(0, n-1) + '…' : str;
+}
+
+function renderGraph(){
+  const container = document.getElementById('graph');
+  const width = container.clientWidth, height = container.clientHeight;
+
+  d3.select('#graph').selectAll('*').remove();
+
+  if(memories.length === 0){
+    els.emptyState.classList.remove('hidden');
+    return;
+  }
+  els.emptyState.classList.add('hidden');
+
+  const nodes = [
+    { id: '__center__', label: currentUserId, type: 'center', r: 22 },
+    ...memories.map(m => ({
+      id: m.id, label: truncate(m.memory, 34), full: m.memory,
+      created_at: m.created_at, type: 'memory', r: 9
+    }))
+  ];
+  const links = memories.map(m => ({ source: '__center__', target: m.id }));
+
+  svg = d3.select('#graph').attr('viewBox', [0,0,width,height]);
+  g = svg.append('g');
+
+  svg.call(d3.zoom().scaleExtent([0.3, 3]).on('zoom', (ev) => g.attr('transform', ev.transform)));
+
+  simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d => d.id).distance(110))
+    .force('charge', d3.forceManyBody().strength(-260))
+    .force('center', d3.forceCenter(width/2, height/2))
+    .force('collide', d3.forceCollide(d => d.r + 14));
+
+  linkSel = g.append('g').selectAll('line')
+    .data(links).join('line').attr('class', 'link');
+
+  nodeSel = g.append('g').selectAll('g')
+    .data(nodes).join('g')
+    .attr('class', 'node')
+    .call(d3.drag()
+      .on('start', (ev,d) => { if(!ev.active) simulation.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+      .on('drag', (ev,d) => { d.fx=ev.x; d.fy=ev.y; })
+      .on('end', (ev,d) => { if(!ev.active) simulation.alphaTarget(0); d.fx=null; d.fy=null; }));
+
+  nodeSel.append('circle')
+    .attr('r', d => d.r)
+    .attr('fill', d => d.type === 'center' ? 'var(--violet)' : 'var(--bg)')
+    .attr('stroke', 'var(--violet)')
+    .attr('stroke-width', d => d.type === 'center' ? 0 : 1.4)
+    .style('filter', d => d.type === 'center' ? 'drop-shadow(0 0 10px var(--violet))' : 'none');
+
+  nodeSel.append('text')
+    .text(d => d.type === 'center' ? d.label : truncate(d.full, 22))
+    .attr('x', d => d.type === 'center' ? 0 : d.r + 6)
+    .attr('y', d => d.type === 'center' ? d.r + 14 : 4)
+    .attr('text-anchor', d => d.type === 'center' ? 'middle' : 'start')
+    .style('font-weight', d => d.type === 'center' ? 600 : 400)
+    .style('fill', d => d.type === 'center' ? 'var(--text)' : 'var(--text-muted)');
+
+  nodeSel.on('click', (ev, d) => { if(d.type === 'memory') openPanel(d); });
+
+  simulation.on('tick', () => {
+    linkSel
+      .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+    nodeSel.attr('transform', d => `translate(${d.x},${d.y})`);
+  });
+
+  applyFilter(els.searchInput.value);
+}
+
+function applyFilter(query){
+  if(!nodeSel) return;
+  const q = query.trim().toLowerCase();
+  nodeSel.classed('dim', d => {
+    if(d.type === 'center' || !q) return false;
+    return !d.full.toLowerCase().includes(q);
+  });
+  nodeSel.classed('match', d => {
+    if(d.type === 'center' || !q) return false;
+    return d.full.toLowerCase().includes(q);
+  });
+  linkSel.style('opacity', l => {
+    if(!q) return 1;
+    const target = memories.find(m => m.id === (l.target.id || l.target));
+    return target && target.memory.toLowerCase().includes(q) ? 1 : 0.08;
+  });
+}
+
+function openPanel(d){
+  els.panelText.textContent = d.full;
+  els.panelId.textContent = d.id;
+  els.panelCreated.textContent = d.created_at ? new Date(d.created_at).toLocaleString() : '—';
+  els.panelDelete.dataset.memoryId = d.id;
+  els.panel.classList.add('open');
+}
+function closePanel(){ els.panel.classList.remove('open'); }
+
+async function deleteMemory(memoryId){
+  try{
+    const r = await fetch(`${API_BASE}/memory/delete`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({memory_id: memoryId})
+    });
+    if(!r.ok){ const err = await r.json(); throw new Error(err.detail); }
+    showToast('Memory deleted');
+    closePanel();
+    fetchMemories(currentUserId);
+  }catch(e){
+    showToast('Delete failed: ' + e.message);
+  }
+}
+
+async function addMemory(text){
+  if(!text.trim()) return;
+  showToast('Adding memory — running local extraction, please wait...', 60000);
+  try{
+    const r = await fetch(`${API_BASE}/memory/add`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({text, user_id: currentUserId})
+    });
+    if(!r.ok){ const err = await r.json(); throw new Error(err.detail); }
+    showToast('Memory added');
+    els.addTextarea.value = '';
+    fetchMemories(currentUserId);
+  }catch(e){
+    showToast('Add failed: ' + e.message);
+  }
+}
+
+function downloadMarkdown(){
+  if(memories.length === 0){ showToast('Nothing to export'); return; }
+  const lines = [
+    `# Ominite Memories — ${currentUserId}`,
+    ``,
+    `_Exported ${new Date().toLocaleString()}_`,
+    ``
+  ];
+  memories.forEach(m => {
+    const date = m.created_at ? new Date(m.created_at).toLocaleDateString() : '';
+    lines.push(`- ${m.memory} ${date ? `_(${date})_` : ''}`);
+  });
+  const blob = new Blob([lines.join('\n')], {type:'text/markdown'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `ominite-memories-${currentUserId}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ---- Wiring ----
+document.getElementById('refresh-btn').addEventListener('click', () => fetchMemories(currentUserId));
+document.getElementById('download-btn').addEventListener('click', downloadMarkdown);
+document.getElementById('panel-close').addEventListener('click', closePanel);
+document.getElementById('panel-delete').addEventListener('click', (e) => deleteMemory(e.target.dataset.memoryId));
+document.getElementById('add-toggle-btn').addEventListener('click', () => els.addDrawer.classList.toggle('open'));
+document.getElementById('add-submit-btn').addEventListener('click', () => addMemory(els.addTextarea.value));
+
+els.searchInput.addEventListener('input', (e) => applyFilter(e.target.value));
+
+els.userIdInput.addEventListener('change', (e) => {
+  currentUserId = e.target.value.trim() || 'athrva_test';
+  fetchMemories(currentUserId);
+});
+document.querySelectorAll('.userid-quick button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentUserId = btn.dataset.uid;
+    els.userIdInput.value = currentUserId;
+    fetchMemories(currentUserId);
+  });
+});
+
+window.addEventListener('resize', () => renderGraph());
+
+// ---- Init ----
+checkHealth();
+setInterval(checkHealth, 15000);
+fetchMemories(currentUserId);
+</script>
+</body>
+</html>
