@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ominite Neural Memory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- D3.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+  <!-- Custom Neural Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Topbar Navigation -->
+    <div class="topbar">
+      <div class="brand">
+        <span class="dot ok" id="health-dot"></span>
+        <span>Ominite Neural Memory</span>
+      </div>
+
+      <div class="userid-field">
+        <label for="user-id-input">user</label>
+        <input id="user-id-input" value="athrva_test" spellcheck="false" title="Enter User ID manually">
+        <select id="user-select" title="Switch to any known user">
+          <option value="" disabled selected>switch user...</option>
+        </select>
+      </div>
+
+      <div class="search-field">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input id="search-input" placeholder="Filter synapses...">
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="theme-btn" title="Toggle color scheme">☀ Light</button>
+        <button class="btn" id="refresh-btn">↻ Refresh</button>
+        <button class="btn" id="add-toggle-btn">+ Add</button>
+        <button class="btn primary" id="download-btn">⭳ Export .md</button>
+      </div>
+    </div>
+
+    <!-- Main Graph Workspace -->
+    <main>
+      <!-- D3 SVG Viewport -->
+      <svg id="graph"></svg>
+
+      <!-- Obsidian-style Graph Settings Floating Panel -->
+      <div class="floating-panel" id="settings-panel">
+        <h3>
+          <span>Graph Settings</span>
+          <button class="toggle-settings-btn" id="toggle-settings-vis">collapse</button>
+        </h3>
+        <div id="settings-controls-wrapper">
+          <div class="control-group">
+            <label>Repulsion <span class="val" id="repulsion-val">-200</span></label>
+            <input type="range" id="repulsion-slider" min="-800" max="-50" step="25" value="-250">
+          </div>
+          <div class="control-group">
+            <label>Link Distance <span class="val" id="link-dist-val">80</span></label>
+            <input type="range" id="link-dist-slider" min="30" max="250" step="5" value="80">
+          </div>
+          <div class="control-group">
+            <label>Gravity Strength <span class="val" id="gravity-val">0.1</span></label>
+            <input type="range" id="gravity-slider" min="0" max="0.5" step="0.02" value="0.1">
+          </div>
+          <div class="control-group">
+            <label>Pulse Duration <span class="val" id="pulse-dur-val">2.5s</span></label>
+            <input type="range" id="pulse-dur-slider" min="1" max="6" step="0.5" value="2.5">
+          </div>
+          <div class="control-group">
+            <label class="control-checkbox">
+              <input type="checkbox" id="toggle-labels" checked> Show Synapse Labels
+            </label>
+          </div>
+          <div class="control-group">
+            <label class="control-checkbox">
+              <input type="checkbox" id="toggle-pulses" checked> Animate Action Potentials
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Brain Clusters/Category Legend Floating Panel -->
+      <div class="floating-panel" id="legend-panel">
+        <h4>Neural Circuits</h4>
+        <div class="legend-list" id="legend-container">
+          <div class="legend-item" style="color: var(--text-muted); font-style: italic;">
+            No circuits loaded.
+          </div>
+        </div>
+      </div>
+
+      <!-- Zoom Controls (Bottom Right Overlay) -->
+      <div class="zoom-controls">
+        <button class="zoom-btn" id="zoom-in-btn" title="Zoom In">+</button>
+        <button class="zoom-btn" id="zoom-out-btn" title="Zoom Out">−</button>
+        <button class="zoom-btn" id="zoom-reset-btn" title="Reset View">⌂</button>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state hidden" id="empty-state">
+        <div class="big">No neural network matches</div>
+        <div class="small">No memories found for this user ID. Add one using the button in the topbar, or select a user with recorded logs.</div>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-state hidden" id="loading-state">
+        <div class="spinner"></div>
+        <div class="small">Mapping neural pathways...</div>
+      </div>
+
+      <!-- Detail Slide-out Panel (Right) -->
+      <div id="panel">
+        <button class="close" id="panel-close">✕ close</button>
+        <div class="memory-text" id="panel-text"></div>
+        <div class="meta">
+          synapse id: <span id="panel-id"></span><br>
+          created: <span id="panel-created"></span>
+        </div>
+        <div class="panel-actions">
+          <button class="btn" id="panel-delete" style="border-color: var(--danger); color: var(--danger);">Prune memory synapse</button>
+        </div>
+      </div>
+
+      <!-- Add Memory Drawer (Bottom) -->
+      <div id="add-drawer">
+        <div style="flex:1;">
+          <textarea id="add-textarea" placeholder="Paste dialogue, thought notes, or log texts to extract a memory synapse..."></textarea>
+          <div class="add-hint">Runs local AI memory extraction via Ollama. It may take some time depending on your server machine.</div>
+        </div>
+        <button class="btn primary" id="add-submit-btn">Synthesize Memory</button>
+      </div>
+
+      <!-- Toast Notification Box -->
+      <div id="toast"></div>
+    </main>
+  </div>
+
+  <!-- Custom Graph Controller -->
+  <script src="graph.js"></script>
+</body>
+</html>
